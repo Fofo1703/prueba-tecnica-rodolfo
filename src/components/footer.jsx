@@ -1,58 +1,127 @@
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import React, { useState, useRef } from 'react';
 
 const images = [
-  { id: 1, src: "https://picsum.photos/800/400?random=1" },
-  { id: 2, src: "https://picsum.photos/800/400?random=2" },
-  { id: 3, src: "https://picsum.photos/800/400?random=3" },
-  { id: 4, src: "https://picsum.photos/800/400?random=4" },
-  { id: 5, src: "https://picsum.photos/800/400?random=5" }
+  "https://picsum.photos/800/400?random=1",
+  "https://picsum.photos/800/400?random=2",
+  "https://picsum.photos/800/400?random=3",
+  "https://picsum.photos/800/400?random=4",
+  "https://picsum.photos/800/400?random=5"
 ];
 
-const FooterGallery = () => {
-  const settings = {
-    centerMode: true,
-    centerPadding: "0px",
-    slidesToShow: 3,
-    infinite: true,
-    arrows: true,
-    speed: 500,
-    responsive: [
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 1
-        }
+const CircularImageGallery = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const dragStartX = useRef(null);
+  const isDragging = useRef(false);
+
+  const rotate = (direction) => {
+    setActiveIndex((prev) =>
+      direction === 'left'
+        ? (prev - 1 + images.length) % images.length
+        : (prev + 1) % images.length
+    );
+  };
+
+  const handleMouseDown = (e) => {
+    dragStartX.current = e.clientX;
+    isDragging.current = true;
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging.current || dragStartX.current === null) return;
+
+    const deltaX = e.clientX - dragStartX.current;
+
+    if (Math.abs(deltaX) > 50) {
+      if (deltaX > 0) {
+        rotate('left');
+      } else {
+        rotate('right');
       }
-    ]
+      isDragging.current = false;
+    }
+  };
+
+  const handleMouseUp = () => {
+    isDragging.current = false;
+    dragStartX.current = null;
   };
 
   return (
-    <footer className="bg-black py-8 mt-20">
-      <div className="container mx-auto px-4">
-        <Slider {...settings}>
-          {images.map((img, index) => (
-            <div key={img.id} className="px-2 relative">
-              <div
-                className={`overflow-hidden rounded-xl shadow-lg transition-all duration-300 ${
-                  index === 1 ? "h-64" : "h-32"
-                } flex items-end justify-center`}
-              >
-                <img
-                  src={img.src}
-                  alt={`Footer ${img.id}`}
-                  className={`w-full object-cover ${
-                    index === 1 ? "h-64" : "h-64 translate-y-1/2 opacity-70"
-                  }`}
-                />
-              </div>
-            </div>
-          ))}
-        </Slider>
+    <div
+      className="flex flex-col items-center justify-center min-h-screen bg-black text-white"
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
+      {/* Contenedor de las imágenes y el texto */}
+      <div
+        className="relative w-full lg:w-[70%] h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] xl:h-[90vh] overflow-hidden flex items-end justify-end px-4 mx-auto"
+        onMouseDown={handleMouseDown}
+      >
+
+        {/* Texto fijo dentro del contenedor de las imágenes */}
+        <div className="absolute left-4 bottom-[calc(22.5vh+16px)] z-30 text-left max-w-[60%]">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 uppercase">
+            GALERÍA DE AVENTURAS
+          </h2>
+          <button className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-full inline-flex items-center gap-2 shadow-lg transition">
+            Ver galería
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+
+
+        {images.map((src, index) => {
+          const position = (index - activeIndex + images.length) % images.length;
+          const isActive = index === activeIndex;
+
+          const commonClasses = `
+            absolute transition-all duration-500 ease-in-out
+            object-cover rounded-lg shadow-lg cursor-grab
+          `;
+
+          const sizeClass = isActive
+            ? 'h-[28vh] w-[50vw] sm:h-[45vh] sm:w-[45vw] md:h-[50vh] md:w-[35vw]'
+            : 'h-[14vh] w-[24vw] sm:h-[22.5vh] sm:w-[25vw] md:h-[22.5vh] md:w-[20vw]';
+
+
+
+
+          const zIndex = isActive ? 'z-20' : 'z-10';
+          const opacity = isActive ? 'opacity-100' : 'opacity-60';
+
+          let translateX = 'translate-x-0';
+          if (position === -1 || position === images.length - 1)
+            translateX = 'translate-x-[-35vw] sm:translate-x-[-26vw]';
+          if (position === -2 || position === images.length - 2)
+            translateX = 'translate-x-[-65vw] sm:translate-x-[-52vw]';
+          if (position === 1 || position === -images.length + 1)
+            translateX = 'translate-x-[20vw] sm:translate-x-[14vw]';
+          if (position === 2 || position === -images.length + 2)
+            translateX = 'translate-x-[35vw] sm:translate-x-[26vw]';
+
+          return (
+            <img
+              key={index}
+              src={src}
+              alt={`img-${index}`}
+ className={`${commonClasses} ${sizeClass} ${translateX} ${zIndex} ${opacity} bottom-[7vh] sm:bottom-0`}
+
+            />
+          );
+        })}
       </div>
-    </footer>
+    </div>
   );
 };
 
-export default FooterGallery;
+export default CircularImageGallery;
