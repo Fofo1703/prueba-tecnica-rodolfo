@@ -45,7 +45,7 @@ Este es un sitio web interactivo desarrollado con **React** y **TailwindCSS**. I
 
 ---
 
-# SPara inicar el proyecto se requieren los comandos
+# Para inicar el proyecto se requieren los comandos
     npm install
     npm start
 
