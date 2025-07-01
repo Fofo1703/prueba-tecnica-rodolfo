@@ -1,54 +1,39 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import Navbar from '../../components/navbar';
-import FooterGallery from '../../components/footer';
+import GaleriaAventuras from '../../components/footer';
 
 const CircularImageGallery = () => {
-  const [rotation, setRotation] = useState(-90); // 👈 Coloca la imagen 0 arriba
+  const [rotation, setRotation] = useState(-90);
   const [isDragging, setIsDragging] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [radius, setRadius] = useState(120);
   const lastAngleRef = useRef(0);
   const centerRef = useRef(null);
 
   const images = [
-    {
-      id: 1,
-      src: 'https://picsum.photos/300/200?random=1',
-      title: 'Bosque Privado',
-      description: 'Recorrido dentro de nuestro bosque privado'
-    },
-    {
-      id: 2,
-      src: 'https://picsum.photos/300/200?random=2',
-      title: 'Grupos Reducidos',
-      description: 'Tours personalizados con grupos pequeños'
-    },
-    {
-      id: 3,
-      src: 'https://picsum.photos/300/200?random=3',
-      title: 'Guías Especializados',
-      description: 'Acompañamiento profesional durante todo el tour'
-    },
-    {
-      id: 4,
-      src: 'https://picsum.photos/300/200?random=4',
-      title: 'Aventura Nocturna',
-      description: 'Explora la naturaleza bajo las estrellas'
-    },
-    {
-      id: 5,
-      src: 'https://picsum.photos/300/200?random=5',
-      title: 'Fauna Silvestre',
-      description: 'Observa animales únicos en su hábitat natural'
-    },
-    {
-      id: 6,
-      src: 'https://picsum.photos/300/200?random=6',
-      title: 'Senderos Naturales',
-      description: 'Disfruta de caminos escondidos llenos de belleza'
-    }
+    { id: 1, src: 'https://picsum.photos/300/200?random=1', title: 'Bosque Privado', description: 'Recorrido dentro de nuestro bosque privado' },
+    { id: 2, src: 'https://picsum.photos/300/200?random=2', title: 'Grupos Reducidos', description: 'Tours personalizados con grupos pequeños' },
+    { id: 3, src: 'https://picsum.photos/300/200?random=3', title: 'Guías Especializados', description: 'Acompañamiento profesional durante todo el tour' },
+    { id: 4, src: 'https://picsum.photos/300/200?random=4', title: 'Aventura Nocturna', description: 'Explora la naturaleza bajo las estrellas' },
+    { id: 5, src: 'https://picsum.photos/300/200?random=5', title: 'Fauna Silvestre', description: 'Observa animales únicos en su hábitat natural' },
+    { id: 6, src: 'https://picsum.photos/300/200?random=6', title: 'Senderos Naturales', description: 'Disfruta de caminos escondidos llenos de belleza' }
   ];
 
-  const radius = 200;
+const getResponsiveRadius = () => {
+  const width = window.innerWidth;
+  if (width < 640) return 120;
+  if (width < 1024) return 180;
+  if (width < 1280) return 240; // lg
+  return 300; // xl
+};
+
+
+  useEffect(() => {
+    setRadius(getResponsiveRadius());
+    const handleResize = () => setRadius(getResponsiveRadius());
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const getAngle = useCallback((clientX, clientY) => {
     if (!centerRef.current) return 0;
@@ -93,47 +78,55 @@ const CircularImageGallery = () => {
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
-  // ✅ Lógica corregida para imagen activa
   const calculateActiveIndex = useCallback(() => {
     const anglePerImage = 360 / images.length;
-
     for (let index = 0; index < images.length; index++) {
       const imageAngle = (index * anglePerImage + rotation) * (Math.PI / 180);
       const angleFromTop = Math.abs((imageAngle - Math.PI / 2 + 0.45 * Math.PI) % (2 * Math.PI));
-      if (angleFromTop < (Math.PI / images.length)) {
-        return index;
-      }
+      if (angleFromTop < (Math.PI / images.length)) return index;
     }
     return 0;
   }, [rotation, images.length]);
 
   useEffect(() => {
-    const index = calculateActiveIndex();
-    setActiveIndex(index);
+    setActiveIndex(calculateActiveIndex());
   }, [rotation, calculateActiveIndex]);
 
-  useEffect(() => {
-    const index = calculateActiveIndex();
-    setActiveIndex(index);
-  }, []); // se ejecuta al cargar
-
   const activeImage = images[activeIndex] || images[0];
+
+
 
   return (
     <>
       <Navbar />
-      <div className="relative flex flex-col md:flex-row items-start justify-center min-h-screen bg-black px-4 py-8">
+      <div className="relative flex flex-col md:flex-row items-start justify-center h-auto bg-black px-4 py-14">
+
+        {/* Texto dinámico */}
+        <div className="w-full md:w-auto text-white px-4 z-50 mb-8 md:mb-0 text-center md:text-left 
+          md:absolute md:mt-20 
+          md:left-[calc(50%+200px)] 
+          lg:left-[calc(50%+260px)] 
+          xl:left-[calc(50%+300px)] 
+          max-w-xl md:max-w-sm lg:max-w-xs">
+          <p className="text-xl sm:text-2xl font-semibold leading-snug mb-2">
+            {activeImage.description}
+          </p>
+          <p className="text-red-600 font-bold">SUPER QUADS</p>
+        </div>
 
         {/* Galería circular */}
         <div
           ref={centerRef}
-          className="relative mt-28 w-[300px] sm:w-[400px] md:w-[500px] h-[300px] sm:h-[400px] md:h-[500px] cursor-grab active:cursor-grabbing select-none"
+          className="relative mt-2 md:mt-28 lg:mt-24 xl:mt-20 
+            w-[280px] sm:w-[400px] md:w-[550px] lg:w-[650px] xl:w-[750px] 
+            h-[280px] sm:h-[400px] md:h-[550px] lg:h-[650px] xl:h-[750px] 
+            cursor-grab active:cursor-grabbing select-none"
           onMouseDown={handleMouseDown}
           style={{ userSelect: 'none' }}
         >
           {/* Imagen central */}
-          <div
-            className="absolute w-28 h-28 transition-transform duration-100 ease-out z-30"
+          {/* <div
+            className="absolute w-20 sm:w-24 md:w-32 lg:w-36 xl:w-40 h-20 sm:h-24 md:h-32 lg:h-36 xl:h-40 transition-transform duration-100 ease-out z-30"
             style={{
               left: '50%',
               top: '50%',
@@ -141,17 +134,31 @@ const CircularImageGallery = () => {
               backgroundImage: `url('/images/Llanta.png')`,
               backgroundSize: 'cover'
             }}
-          />
+          /> */}
+<div
+  className="absolute w-20 sm:w-24 md:w-32 lg:w-60 xl:w-72 h-20 sm:h-24 md:h-32 lg:h-60 xl:h-72 transition-transform duration-100 ease-out z-30"
+  style={{
+    left: '50%',
+    top: '50%',
+    transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
+    backgroundImage: `url('/images/Llanta.png')`,
+    backgroundSize: 'cover'
+  }}
+/>
+
+
 
           {/* Tarjetas en círculo */}
           {images.map((image, index) => {
             const anglePerImage = 360 / images.length;
             const imageAngle = (index * anglePerImage + rotation) * (Math.PI / 180);
 
-            const containerSize = 500;
-            const centerPos = containerSize / 2;
-            const x = centerPos + Math.cos(imageAngle - Math.PI / 2) * radius;
-            const y = centerPos + Math.sin(imageAngle - Math.PI / 2) * radius;
+            const container = centerRef.current;
+            const centerX = container?.offsetWidth / 2 || 0;
+            const centerY = container?.offsetHeight / 2 || 0;
+
+            const x = centerX + Math.cos(imageAngle - Math.PI / 2) * radius;
+            const y = centerY + Math.sin(imageAngle - Math.PI / 2) * radius;
 
             const angleFromTop = Math.abs((imageAngle - Math.PI / 2 + 0.45 * Math.PI) % (2 * Math.PI));
             const isActive = angleFromTop < (Math.PI / images.length);
@@ -168,39 +175,47 @@ const CircularImageGallery = () => {
                   left: `${x}px`,
                   top: `${y}px`,
                   transform: `translate(-50%, -50%) scale(${scale})`,
-                  opacity: opacity,
-                  zIndex: zIndex
+                  opacity,
+                  zIndex
                 }}
               >
-                <div className="w-40 bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-300 text-center">
+                {/* <div className="w-32 sm:w-40 md:w-48 lg:w-56 xl:w-64 bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-300 text-center">
                   <img
                     src={image.src}
                     alt={image.title}
-                    className="w-full h-24 object-cover"
+                    className="w-full h-20 sm:h-24 md:h-28 lg:h-32 xl:h-36 object-cover"
                     draggable={false}
                   />
                   <div className="py-2 text-black font-semibold text-sm">
                     {image.title}
                   </div>
-                </div>
+                </div> */}
+<div className="w-32 sm:w-40 md:w-48 lg:w-72 xl:w-80 bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-300 text-center">
+  <img
+    src={image.src}
+    alt={image.title}
+    className="w-full h-20 sm:h-24 md:h-28 lg:h-36 xl:h-44 object-cover"
+    draggable={false}
+  />
+  <div className="py-2 text-black font-semibold text-sm lg:text-base xl:text-lg">
+    {image.title}
+  </div>
+</div>
+
+
+
+
+
               </div>
             );
           })}
         </div>
-
-        {/* Texto flotante a la derecha */}
-        <div className="absolute mt-20 left-1/2 md:left-[calc(50%+180px)] text-white max-w-xs px-4 text-left z-50">
-          <p className="text-xl sm:text-2xl font-semibold leading-snug mb-2">
-            {activeImage.description}
-          </p>
-          <p className="text-red-600 font-bold">SUPER QUADS</p>
-        </div>
       </div>
-
-      <FooterGallery />
+      <div className=' -mt-[200px]  sm:-mt-[250px]  md:-mt-[350px] lg:-mt-[400px] xl:-mt-[450px] relative z-40'>
+        <GaleriaAventuras />
+      </div>
     </>
   );
 };
 
 export default CircularImageGallery;
-

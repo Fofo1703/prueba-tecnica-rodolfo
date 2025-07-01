@@ -1,127 +1,87 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const images = [
-  "https://picsum.photos/800/400?random=1",
-  "https://picsum.photos/800/400?random=2",
-  "https://picsum.photos/800/400?random=3",
-  "https://picsum.photos/800/400?random=4",
-  "https://picsum.photos/800/400?random=5"
-];
+export default function GaleriaAventuras() {
+  const imagenes = [
+    'https://picsum.photos/800/400?random=1',
+    'https://picsum.photos/800/400?random=2',
+    'https://picsum.photos/800/400?random=3',
+  ];
 
-const CircularImageGallery = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const dragStartX = useRef(null);
-  const isDragging = useRef(false);
+  const [index, setIndex] = useState(0);
 
-  const rotate = (direction) => {
-    setActiveIndex((prev) =>
-      direction === 'left'
-        ? (prev - 1 + images.length) % images.length
-        : (prev + 1) % images.length
-    );
-  };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % imagenes.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const handleMouseDown = (e) => {
-    dragStartX.current = e.clientX;
-    isDragging.current = true;
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDragging.current || dragStartX.current === null) return;
-
-    const deltaX = e.clientX - dragStartX.current;
-
-    if (Math.abs(deltaX) > 50) {
-      if (deltaX > 0) {
-        rotate('left');
-      } else {
-        rotate('right');
-      }
-      isDragging.current = false;
-    }
-  };
-
-  const handleMouseUp = () => {
-    isDragging.current = false;
-    dragStartX.current = null;
-  };
+  const rotacion = [
+    imagenes[(index + 0) % imagenes.length],
+    imagenes[(index + 1) % imagenes.length],
+    imagenes[(index + 2) % imagenes.length],
+  ];
 
   return (
-    <div
-      className="flex flex-col items-center justify-center min-h-screen bg-black text-white"
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-    >
-      {/* Contenedor de las imágenes y el texto */}
-      <div
-        className="relative w-full lg:w-[70%] h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] xl:h-[90vh] overflow-hidden flex items-end justify-end px-4 mx-auto"
-        onMouseDown={handleMouseDown}
-      >
-
-        {/* Texto fijo dentro del contenedor de las imágenes */}
-        <div className="absolute left-4 bottom-[calc(22.5vh+16px)] z-30 text-left max-w-[60%]">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4 uppercase">
-            GALERÍA DE AVENTURAS
-          </h2>
-          <button className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-full inline-flex items-center gap-2 shadow-lg transition">
-            Ver galería
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
+    <section className="bg-[#1B171D] py-20 px-4 md:px-12 overflow-hidden">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-end gap-6">
+        {/* Contenido izquierdo (texto y pequeñas) */}
+        <div className="relative flex-1 w-full md:w-[55%] flex-col md:flex gap-4 items-end hidden">
+          {/* Texto sobre imágenes pequeñas solo en desktop */}
+          <div className="relative md:absolute z-10 md:top-[-12rem] left-0 right-0 px-4 md:px-6 text-center md:text-left">
+            <h2
+              className="text-white text-3xl md:text-5xl font-bold uppercase tracking-wider"
+              style={{ fontFamily: "'Bebas Neue', sans-serif" }}
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+              GALERÍA DE AVENTURAS
+            </h2>
+            <button className="mt-4 inline-flex items-center gap-2 bg-[#BE1818] hover:bg-red-700 text-white px-6 py-2.5 rounded-full text-sm font-medium transition">
+              Ver galería
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Imágenes pequeñas en escritorio */}
+          <div className="flex flex-row gap-4">
+            {rotacion.slice(0, 2).map((src, i) => (
+              <img
+                key={i}
+                src={src}
+                alt={`Secundaria ${i + 1}`}
+                className="h-44 w-1/2 object-cover rounded-2xl shadow-md opacity-90 transition-all duration-700"
+              />
+            ))}
+          </div>
         </div>
 
+        {/* Imagen principal con texto visible en móvil y desktop */}
+        <div className="w-full md:w-[45%] flex flex-col items-center md:items-end">
+          {/* Texto centrado en mobile */}
+          <div className="md:hidden text-center mb-6">
+            <h2
+              className="text-white text-3xl font-bold uppercase tracking-wider"
+              style={{ fontFamily: "'Bebas Neue', sans-serif" }}
+            >
+              GALERÍA DE AVENTURAS
+            </h2>
+            <button className="mt-4 inline-flex items-center gap-2 bg-[#BE1818] hover:bg-red-700 text-white px-6 py-2.5 rounded-full text-sm font-medium transition">
+              Ver galería
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
 
-        {images.map((src, index) => {
-          const position = (index - activeIndex + images.length) % images.length;
-          const isActive = index === activeIndex;
-
-          const commonClasses = `
-            absolute transition-all duration-500 ease-in-out
-            object-cover rounded-lg shadow-lg cursor-grab
-          `;
-
-          const sizeClass = isActive
-            ? 'h-[28vh] w-[50vw] sm:h-[45vh] sm:w-[45vw] md:h-[50vh] md:w-[35vw]'
-            : 'h-[14vh] w-[24vw] sm:h-[22.5vh] sm:w-[25vw] md:h-[22.5vh] md:w-[20vw]';
-
-
-
-
-          const zIndex = isActive ? 'z-20' : 'z-10';
-          const opacity = isActive ? 'opacity-100' : 'opacity-60';
-
-          let translateX = 'translate-x-0';
-          if (position === -1 || position === images.length - 1)
-            translateX = 'translate-x-[-35vw] sm:translate-x-[-26vw]';
-          if (position === -2 || position === images.length - 2)
-            translateX = 'translate-x-[-65vw] sm:translate-x-[-52vw]';
-          if (position === 1 || position === -images.length + 1)
-            translateX = 'translate-x-[20vw] sm:translate-x-[14vw]';
-          if (position === 2 || position === -images.length + 2)
-            translateX = 'translate-x-[35vw] sm:translate-x-[26vw]';
-
-          return (
-            <img
-              key={index}
-              src={src}
-              alt={`img-${index}`}
- className={`${commonClasses} ${sizeClass} ${translateX} ${zIndex} ${opacity} bottom-[7vh] sm:bottom-0`}
-
-            />
-          );
-        })}
+          {/* Imagen principal visible en todos los tamaños */}
+          <img
+            src={rotacion[2]}
+            alt="Imagen principal"
+            className="h-96 w-full object-cover rounded-2xl shadow-xl transition-all duration-700"
+          />
+        </div>
       </div>
-    </div>
+    </section>
   );
-};
-
-export default CircularImageGallery;
+}
