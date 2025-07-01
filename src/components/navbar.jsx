@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
+
 import { useState } from "react";
 import { FaWhatsapp, FaTiktok, FaInstagram } from "react-icons/fa";
 import { IoIosArrowForward, IoMdMenu, IoMdClose } from "react-icons/io";
@@ -22,9 +22,9 @@ export default function Navbar() {
 
         {/* DERECHA */}
         <div className="hidden md:flex items-center space-x-4">
-          <a href="#" className="p-2 rounded-full bg-white text-black hover:text-red-500"><FaWhatsapp /></a>
-          <a href="#" className="p-2 rounded-full bg-white text-black hover:text-red-500"><FaTiktok /></a>
-          <a href="#" className="p-2 rounded-full bg-white text-black hover:text-red-500"><FaInstagram /></a>
+          <button className="p-2 rounded-full bg-white text-black hover:text-red-500"><FaWhatsapp /></button>
+          <button className="p-2 rounded-full bg-white text-black hover:text-red-500"><FaTiktok /></button>
+          <button className="p-2 rounded-full bg-white text-black hover:text-red-500"><FaInstagram /></button>
           <button className="flex items-center bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition">
             RESERVAR <IoIosArrowForward className="ml-2" />
           </button>
@@ -45,9 +45,9 @@ export default function Navbar() {
           <a href="#galeria" className="hover:text-red-500">Galería de Aventuras</a>
           <a href="#acerca" className="hover:text-red-500">Acerca de</a>
           <div className="flex space-x-4">
-            <a href="#" className="p-2 rounded-full bg-white text-black"><FaWhatsapp /></a>
-            <a href="#" className="p-2 rounded-full bg-white text-black"><FaTiktok /></a>
-            <a href="#" className="p-2 rounded-full bg-white text-black"><FaInstagram /></a>
+            <button className="p-2 rounded-full bg-white text-black"><FaWhatsapp /></button>
+            <button className="p-2 rounded-full bg-white text-black"><FaTiktok /></button>
+            <button className="p-2 rounded-full bg-white text-black"><FaInstagram /></button>
           </div>
           <button className="flex items-center bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition">
             RESERVAR <IoIosArrowForward className="ml-2" />

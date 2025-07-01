@@ -3,12 +3,14 @@ import Navbar from '../../components/navbar';
 import GaleriaAventuras from '../../components/footer';
 
 const CircularImageGallery = () => {
-  const [rotation, setRotation] = useState(-90);
-  const [isDragging, setIsDragging] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [radius, setRadius] = useState(120);
-  const lastAngleRef = useRef(0);
-  const centerRef = useRef(null);
+
+  const [rotation, setRotation] = useState(-90); // Ángulo inicial de rotación de la galería
+  const [isDragging, setIsDragging] = useState(false); // Controla si se está arrastrando
+  const [activeIndex, setActiveIndex] = useState(0); // Índice de la imagen activa
+  const [radius, setRadius] = useState(120); // Radio del círculo donde orbitan las tarjetas
+  const lastAngleRef = useRef(0); // Último ángulo detectado (para calcular diferencia)
+  const centerRef = useRef(null); // Referencia al centro del contenedor
+
 
   const images = [
     { id: 1, src: 'https://picsum.photos/300/200?random=1', title: 'Bosque Privado', description: 'Recorrido dentro de nuestro bosque privado' },
@@ -19,22 +21,23 @@ const CircularImageGallery = () => {
     { id: 6, src: 'https://picsum.photos/300/200?random=6', title: 'Senderos Naturales', description: 'Disfruta de caminos escondidos llenos de belleza' }
   ];
 
-const getResponsiveRadius = () => {
-  const width = window.innerWidth;
-  if (width < 640) return 120;
-  if (width < 1024) return 180;
-  if (width < 1280) return 240; // lg
-  return 300; // xl
-};
-
+  //Ajuste dinámico del radio según tamaño de pantalla
+  const getResponsiveRadius = () => {
+    const width = window.innerWidth;
+    if (width < 640) return 120;   // móvil
+    if (width < 1024) return 180;  // tablet
+    if (width < 1280) return 240;  // laptop
+    return 300;                    // desktop grande
+  };
 
   useEffect(() => {
-    setRadius(getResponsiveRadius());
-    const handleResize = () => setRadius(getResponsiveRadius());
+    setRadius(getResponsiveRadius()); // Inicializa radio al montar
+    const handleResize = () => setRadius(getResponsiveRadius()); // Responde al cambio de tamaño
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  //Obtención del ángulo entre el cursor y el centro
   const getAngle = useCallback((clientX, clientY) => {
     if (!centerRef.current) return 0;
     const rect = centerRef.current.getBoundingClientRect();
@@ -43,10 +46,11 @@ const getResponsiveRadius = () => {
     return Math.atan2(clientY - centerYAbs, clientX - centerXAbs);
   }, []);
 
+  //Eventos de arrastre del ratón
   const handleMouseDown = useCallback((e) => {
     e.preventDefault();
     setIsDragging(true);
-    lastAngleRef.current = getAngle(e.clientX, e.clientY);
+    lastAngleRef.current = getAngle(e.clientX, e.clientY); // Guarda ángulo inicial
   }, [getAngle]);
 
   const handleMouseMove = useCallback((e) => {
@@ -55,6 +59,7 @@ const getResponsiveRadius = () => {
     const angleDiff = currentAngle - lastAngleRef.current;
 
     let normalizedDiff = angleDiff;
+    // Ajuste para rotación circular completa
     if (Math.abs(angleDiff) > Math.PI) {
       normalizedDiff = angleDiff > 0 ? angleDiff - 2 * Math.PI : angleDiff + 2 * Math.PI;
     }
@@ -67,6 +72,7 @@ const getResponsiveRadius = () => {
     setIsDragging(false);
   }, []);
 
+  // Activar/desactivar los listeners globales al mover
   useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
@@ -78,6 +84,7 @@ const getResponsiveRadius = () => {
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
+  //Detectar la tarjeta que está en la parte superior
   const calculateActiveIndex = useCallback(() => {
     const anglePerImage = 360 / images.length;
     for (let index = 0; index < images.length; index++) {
@@ -89,10 +96,10 @@ const getResponsiveRadius = () => {
   }, [rotation, images.length]);
 
   useEffect(() => {
-    setActiveIndex(calculateActiveIndex());
+    setActiveIndex(calculateActiveIndex()); // Recalcula al rotar
   }, [rotation, calculateActiveIndex]);
 
-  const activeImage = images[activeIndex] || images[0];
+  const activeImage = images[activeIndex] || images[0];// Imagen que está arriba
 
 
 
@@ -118,15 +125,15 @@ const getResponsiveRadius = () => {
         <div
           ref={centerRef}
           className="relative mt-2 md:mt-28 lg:mt-24 xl:mt-20 
-            w-[280px] sm:w-[400px] md:w-[550px] lg:w-[650px] xl:w-[750px] 
-            h-[280px] sm:h-[400px] md:h-[550px] lg:h-[650px] xl:h-[750px] 
-            cursor-grab active:cursor-grabbing select-none"
+      w-[280px] sm:w-[400px] md:w-[550px] lg:w-[650px] xl:w-[750px] 
+      h-[280px] sm:h-[400px] md:h-[550px] lg:h-[650px] xl:h-[750px] 
+      cursor-grab active:cursor-grabbing select-none mx-auto"
           onMouseDown={handleMouseDown}
           style={{ userSelect: 'none' }}
         >
-          {/* Imagen central */}
-          {/* <div
-            className="absolute w-20 sm:w-24 md:w-32 lg:w-36 xl:w-40 h-20 sm:h-24 md:h-32 lg:h-36 xl:h-40 transition-transform duration-100 ease-out z-30"
+
+          <div
+            className="absolute w-20 sm:w-24 md:w-32 lg:w-60 xl:w-72 h-20 sm:h-24 md:h-32 lg:h-60 xl:h-72 transition-transform duration-100 ease-out z-30"
             style={{
               left: '50%',
               top: '50%',
@@ -134,32 +141,23 @@ const getResponsiveRadius = () => {
               backgroundImage: `url('/images/Llanta.png')`,
               backgroundSize: 'cover'
             }}
-          /> */}
-<div
-  className="absolute w-20 sm:w-24 md:w-32 lg:w-60 xl:w-72 h-20 sm:h-24 md:h-32 lg:h-60 xl:h-72 transition-transform duration-100 ease-out z-30"
-  style={{
-    left: '50%',
-    top: '50%',
-    transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
-    backgroundImage: `url('/images/Llanta.png')`,
-    backgroundSize: 'cover'
-  }}
-/>
+          />
 
 
 
           {/* Tarjetas en círculo */}
           {images.map((image, index) => {
             const anglePerImage = 360 / images.length;
-            const imageAngle = (index * anglePerImage + rotation) * (Math.PI / 180);
 
+            // Se calcula posición x, y de cada tarjeta según el ángulo
+            const imageAngle = (index * anglePerImage + rotation) * (Math.PI / 180);
             const container = centerRef.current;
             const centerX = container?.offsetWidth / 2 || 0;
             const centerY = container?.offsetHeight / 2 || 0;
-
             const x = centerX + Math.cos(imageAngle - Math.PI / 2) * radius;
             const y = centerY + Math.sin(imageAngle - Math.PI / 2) * radius;
 
+             // Determina cuál imagen está activa
             const angleFromTop = Math.abs((imageAngle - Math.PI / 2 + 0.45 * Math.PI) % (2 * Math.PI));
             const isActive = angleFromTop < (Math.PI / images.length);
 
@@ -179,32 +177,18 @@ const getResponsiveRadius = () => {
                   zIndex
                 }}
               >
-                {/* <div className="w-32 sm:w-40 md:w-48 lg:w-56 xl:w-64 bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-300 text-center">
+
+                <div className="w-32 sm:w-40 md:w-48 lg:w-72 xl:w-80 bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-300 text-center">
                   <img
                     src={image.src}
                     alt={image.title}
-                    className="w-full h-20 sm:h-24 md:h-28 lg:h-32 xl:h-36 object-cover"
+                    className="w-full h-20 sm:h-24 md:h-28 lg:h-36 xl:h-44 object-cover"
                     draggable={false}
                   />
-                  <div className="py-2 text-black font-semibold text-sm">
+                  <div className="py-2 text-black font-semibold text-sm lg:text-base xl:text-lg">
                     {image.title}
                   </div>
-                </div> */}
-<div className="w-32 sm:w-40 md:w-48 lg:w-72 xl:w-80 bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-300 text-center">
-  <img
-    src={image.src}
-    alt={image.title}
-    className="w-full h-20 sm:h-24 md:h-28 lg:h-36 xl:h-44 object-cover"
-    draggable={false}
-  />
-  <div className="py-2 text-black font-semibold text-sm lg:text-base xl:text-lg">
-    {image.title}
-  </div>
-</div>
-
-
-
-
+                </div>
 
               </div>
             );

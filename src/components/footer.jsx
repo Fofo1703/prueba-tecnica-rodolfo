@@ -7,15 +7,18 @@ export default function GaleriaAventuras() {
     'https://picsum.photos/800/400?random=3',
   ];
 
+   // Estado para controlar el índice actual de la imagen principal
   const [index, setIndex] = useState(0);
 
+  // useEffect para rotar automáticamente las imágenes cada 3 segundos
   useEffect(() => {
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % imagenes.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [imagenes.length]);
 
+// Calcula las 3 imágenes que se mostrarán en orden
   const rotacion = [
     imagenes[(index + 0) % imagenes.length],
     imagenes[(index + 1) % imagenes.length],
@@ -58,7 +61,7 @@ export default function GaleriaAventuras() {
 
         {/* Imagen principal con texto visible en móvil y desktop */}
         <div className="w-full md:w-[45%] flex flex-col items-center md:items-end">
-          {/* Texto centrado en mobile */}
+          
           <div className="md:hidden text-center mb-6">
             <h2
               className="text-white text-3xl font-bold uppercase tracking-wider"
